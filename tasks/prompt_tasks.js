@@ -13,18 +13,6 @@ var inquirer = require('inquirer-longer');
 module.exports = function(grunt) {
     var choices = [];
 
-    function findChoice(name) {
-        var choice;
-
-        for (var i = 0; i < choices.length; i++) {
-            if (choices[i].name === name) {
-                choice = choices[i];
-            }
-        }
-
-        return choice;
-    }
-
     function pad(str, len) {
         var result = str;
 
@@ -35,28 +23,33 @@ module.exports = function(grunt) {
         return result;
     }
 
-    function getOptions() {
-        var options = [];
-        var max = function (a, b) {return Math.max(a, b)};
-        var getLength = function (str) {return str.length};
+    function getLongestNameLength(arr) {
+        var result = 0;
 
-        for (var i = 0; i < choices.length; i++) {
-            options.push(choices[i].name);
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i].name.length > result) {
+                result = arr[i].name.length;
+            }
         }
 
-        var longestChoiceLength = options.map(getLength).reduce(max);
+        return result;
+    }
 
-        for (var i = 0; i < options.length; i++) {
-            options[i] = {
-                name: pad(options[i], longestChoiceLength + 4) + choices[i].desc,
-                value: options[i]
-            };
+    function getOptions() {
+        var longestChoiceLength = getLongestNameLength(choices);
+        var options = [];
+
+        for (var i = 0; i < choices.length; i++) {
+            options.push({
+                name: pad(choices[i].name, longestChoiceLength + 4) + choices[i].desc,
+                value: choices[i].name
+            });
         }
 
         return options;
     }
 
-    grunt.registerPromptTask = function (name, desc, tasks) {
+    function registerTask(name, desc, tasks) {
         if (arguments.length < 3) {
             // desc was not specified, so let's swap tasks and desc
             tasks = desc;
@@ -68,8 +61,16 @@ module.exports = function(grunt) {
             desc: (desc || '').grey,
             tasks: tasks
         });
+    }
 
+    grunt.registerPromptTask = function (name, desc, tasks) {
+        registerTask(name, desc, tasks);
         grunt.registerTask(name, desc, tasks);
+    };
+
+    grunt.registerPromptMultiTask = function (name, desc, tasks) {
+        registerTask(name, desc, tasks);
+        grunt.registerMultiTask(name, desc, tasks);
     };
 
     grunt.registerTask('prompt_tasks', 'Prompt the user with a list of tasks to choose from.', function() {
@@ -91,8 +92,6 @@ module.exports = function(grunt) {
 
             if (chosenTask) {
                 grunt.task.run(chosenTask);
-            } else {
-                grunt.log.writeln('Exiting');
             }
 
             done();
