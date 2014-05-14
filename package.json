@@ -1,7 +1,7 @@
 {
   "name": "grunt-prompt-tasks",
   "description": "Prompt the user with a list of tasks to choose from.",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "homepage": "https://github.com/matthewoates/grunt-prompt-tasks",
   "author": {
     "name": "matt",
@@ -37,5 +37,9 @@
   },
   "keywords": [
     "gruntplugin"
-  ]
+  ],
+  "dependencies": {
+    "grunt-prompt": "^1.1.0",
+    "inquirer-longer": "~0.5.0"
+  }
 }
